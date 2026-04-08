@@ -47,7 +47,7 @@ app.use(express.json());
 app.get('/', (_req, res) => res.json({
   status: 'ok',
   service: 'Meta MCP Server',
-  version: '1.2.0',
+  version: '1.2.1',
   wa_phone_id: WHATSAPP_PHONE_NUMBER_ID || 'not set',
   ig_page_id: INSTAGRAM_PAGE_ID || 'not set',
   ads_account: META_AD_ACCOUNT_ID || 'not set'
@@ -113,7 +113,7 @@ app.post('/webhook/instagram', (req, res) => {
 
 // ── MCP Server Factory ───────────────────────────────────────────────────────
 function createMcpServer() {
-  const server = new McpServer({ name: 'meta-messaging', version: '1.2.0' });
+  const server = new McpServer({ name: 'meta-messaging', version: '1.2.1' });
 
   // ── WhatsApp Tools ──────────────────────────────────────────────────────────
 
@@ -237,18 +237,24 @@ function createMcpServer() {
 
   server.tool(
     'instagram_send_message',
-    'Envoie un message Instagram DM à un utilisateur.',
+    'Envoie un message Instagram DM à un utilisateur (IGSID ou @username).',
     {
-      recipient_id: z.string().describe('IGSID (Instagram-Scoped ID) du destinataire'),
+      recipient_id: z.string().describe('IGSID ou username Instagram (ex: "the.aurel") du destinataire'),
       message: z.string().describe('Texte du message à envoyer')
     },
     async ({ recipient_id, message }) => {
       if (!INSTAGRAM_ACCESS_TOKEN || !INSTAGRAM_PAGE_ID)
         return { content: [{ type: 'text', text: 'Erreur: tokens Instagram non configurés.' }] };
+      // Detect if recipient_id is a username (non-numeric) or an IGSID (numeric)
+      const isUsername = isNaN(recipient_id.replace(/^@/, ''));
+      const cleanUsername = recipient_id.replace(/^@/, '');
+      const recipient = isUsername
+        ? { username: cleanUsername }
+        : { id: recipient_id };
       try {
         const r = await axios.post(
           `${GRAPH}/${INSTAGRAM_PAGE_ID}/messages`,
-          { recipient: { id: recipient_id }, message: { text: message }, messaging_type: 'RESPONSE' },
+          { recipient, message: { text: message }, messaging_type: 'RESPONSE' },
           { params: { access_token: INSTAGRAM_ACCESS_TOKEN } }
         );
         return { content: [{ type: 'text', text: `✅ Message Instagram envoyé. ID: ${r.data.message_id || 'unknown'}` }] };

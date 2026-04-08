@@ -338,7 +338,7 @@ function createMcpServer() {
         .int()
         .min(1)
         .max(50)
-        .default10)
+        .default(10)
         .describe('Nombre de conversations Ã  retourner'),
     },
     async ({ limit }) => {

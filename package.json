@@ -1,7 +1,7 @@
 {
   "name": "mcp-meta-server",
-  "version": "1.0.0",
-  "description": "Serveur MCP pour WhatsApp Business API et Instagram Messaging API",
+  "version": "1.3.0",
+  "description": "Serveur MCP pour WhatsApp Business API, Instagram Messaging API et Growth Automation",
   "type": "module",
   "main": "index.js",
   "scripts": {
@@ -13,6 +13,7 @@
     "axios": "^1.7.0",
     "dotenv": "^16.4.0",
     "express": "^4.19.0",
+    "node-cron": "^3.0.3",
     "zod": "^3.23.0"
   },
   "engines": {
